@@ -1,0 +1,34 @@
+# Contributor: Markus Schirp <mbj@schirp-dso.com>
+# Maintainer: Markus Schirp <mbj@schirp-dso.com>
+arch=x86_64
+gitref=515ff24590419e4fdb5aa3a392dcb815801a9a04
+license=BSD-3-Clause
+makedepends="ghc=8.4.3-r0 stack>=1.9.3 zlib-dev"
+pkgdesc='Utility to cache stack state on S3'
+pkgname=cache-s3
+pkgrel=0
+pkgver=0.1.5
+dirname="cache-s3-$gitref"
+filename="$gitref.tar.gz"
+source="https://github.com/mbj/cache-s3/archive/$filename"
+url=https://www.haskellstack.org
+
+build() {
+  cd "$srcdir/$dirname"
+
+  stack build                 \
+    --copy-bins               \
+    --local-bin-path "$(pwd)" \
+    --system-ghc
+}
+
+check() {
+  "$srcdir/$dirname/cache-s3" --version
+}
+
+package() {
+  cd "$srcdir/$dirname"
+  install -Dm755 cache-s3 "$pkgdir/usr/bin/cache-s3"
+}
+
+sha256sums="f5d2e5203bb28cf7b637d524cd308e15c5519a2932b2a51eab85c6b0fcb7184c  $filename"

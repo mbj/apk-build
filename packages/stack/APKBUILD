@@ -1,0 +1,24 @@
+# Contributor: Markus Schirp <mbj@schirp-dso.com>
+# Maintainer: Markus Schirp <mbj@schirp-dso.com>
+arch=x86_64
+license=BSD-3-Clause
+pkgdesc='The Haskell Tool Stack'
+pkgname=stack
+pkgrel=0
+pkgver=2.1.3
+dirname="stack-$pkgver-linux-x86_64-static"
+filename="$dirname.tar.gz"
+source="https://github.com/commercialhaskell/stack/releases/download/v$pkgver/$filename"
+url=https://www.haskellstack.org
+
+package() {
+  cd "$srcdir/$dirname"
+
+  install -Dm755 stack "$pkgdir/usr/bin/stack"
+}
+
+check() {
+  "$srcdir/$dirname/stack" --version
+}
+
+sha256sums="4e937a6ad7b5e352c5bd03aef29a753e9c4ca7e8ccc22deb5cd54019a8cf130c  $filename"

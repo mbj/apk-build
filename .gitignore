@@ -1,0 +1,5 @@
+/.stack-work
+/apk-build.cabal
+/cache
+/packages/*/pkg
+/packages/*/src

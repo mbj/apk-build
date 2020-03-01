@@ -1,0 +1,98 @@
+name:       apk-build
+version:    0.0.0.1
+synopsis:   Utilities to build APK packages
+homepage:   https://github.com/mbj/apk-build
+author:     Markus Schirp
+maintainer: mbj@schirp-dso.com
+copyright:  2020 Markus Schirp
+github:     mbj/apk-build
+
+dependencies:
+- amazonka                == 1.6.1
+- amazonka-cloudformation == 1.6.1
+- amazonka-core           == 1.6.1
+- amazonka-s3             == 1.6.1
+- base                    ^>= 4.12
+- bytestring              ^>= 0.10
+- containers              ^>= 0.6
+- exceptions              ^>= 0.10
+- filepath                ^>= 1.4
+- hashable                ^>= 1.2
+- lens                    ^>= 4.17
+- mprelude                == 0.0.0.1
+- optparse-applicative    ^>= 0.14
+- pathtype                ^>= 0.8
+- resourcet               ^>= 1.2
+- source-constraints      == 0.0.0.1
+- stack-deploy            == 0.0.0.1
+- stratosphere            ^>= 0.49
+- tasty                   ^>= 1.2
+- tasty-mgolden           == 0.0.0.1
+- template-haskell        ^>= 2.14
+- text                    ^>= 1.2
+- text-conversions        ^>= 0.3
+- th-lift-instances       ^>= 0.1
+- typed-process           ^>= 0.2.6
+- unliftio-core           ^>= 0.1
+
+ghc-options:
+- -Wall
+- -Wcompat
+- -Werror
+- -Widentities
+- -Wimplicit-prelude
+- -Wincomplete-record-updates
+- -Wincomplete-uni-patterns
+- -Wmissing-exported-signatures
+- -Wmissing-local-signatures
+- -Wmonomorphism-restriction
+- -Wredundant-constraints
+- -fplugin=SourceConstraints
+- -funbox-strict-fields
+
+default-extensions:
+- DeriveAnyClass
+- DeriveGeneric
+- DerivingStrategies
+- DuplicateRecordFields
+- FlexibleContexts
+- FlexibleInstances
+- GeneralizedNewtypeDeriving
+- LambdaCase
+- MultiParamTypeClasses
+- NoImplicitPrelude
+- NumericUnderscores
+- OverloadedLists
+- OverloadedStrings
+- RankNTypes
+- RecordWildCards
+- ScopedTypeVariables
+- Strict
+- TemplateHaskell
+- TypeFamilies
+
+executables:
+  apk-build:
+    main: app/CLI.hs
+    ghc-options: &ghc-options
+    - -rtsopts
+    - -threaded
+    - -with-rtsopts=-N
+    dependencies: apk-build
+
+library:
+  source-dirs:
+  - src
+  exposed-modules:
+  - APK.CLI
+  - APK.StackDeploy
+
+tests:
+  test:
+    main: Test.hs
+    source-dirs: test
+    ghc-options: *ghc-options
+    dependencies:
+    - apk-build
+    - devtools
+    - tasty
