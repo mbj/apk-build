@@ -28,7 +28,7 @@ check() {
 
 package() {
   cd "$srcdir/$dirname"
-  install -Dm755 cache-s3 "$pkgdir/usr/bin/cache-s3"
+  install -Dm755 -- cache-s3 "$pkgdir/usr/bin/cache-s3"
 }
 
 sha256sums="f5d2e5203bb28cf7b637d524cd308e15c5519a2932b2a51eab85c6b0fcb7184c  $filename"

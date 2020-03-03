@@ -44,7 +44,7 @@ main = do
     packageNameParser = PackageName <$> Options.argument Options.str (Options.metavar "PACKAGE_NAME")
 
     stringArgument :: String -> Options.Parser String
-    stringArgument meta = Options.argument Options.str (Options.metavar meta)
+    stringArgument = Options.argument Options.str . Options.metavar
 
     wrapHelper :: Options.Parser b -> String -> Options.ParserInfo b
     wrapHelper parser desc = Options.info parser (Options.progDesc desc)

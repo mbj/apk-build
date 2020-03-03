@@ -14,7 +14,7 @@ url=https://www.haskellstack.org
 package() {
   cd "$srcdir/$dirname"
 
-  install -Dm755 stack "$pkgdir/usr/bin/stack"
+  install -Dm755 -- stack "$pkgdir/usr/bin/stack"
 }
 
 check() {

@@ -37,8 +37,8 @@ newtype PackageName = PackageName Text
   deriving newtype ToText
 
 data Config = Config
-  { arguments     :: [String]
-  , command       :: String
+  { arguments      :: [String]
+  , command        :: String
   , repositoryPath :: Path.RelDir
   , workPath       :: Path.AbsDir
   }
