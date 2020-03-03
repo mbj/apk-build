@@ -33,6 +33,7 @@ apk add stack@mbj
 Supported packages:
 
 * [cache-s3@mbj=0.1.5-r0](https://github.com/fpco/cache-s3)
+* [libpq@mbj=12.2](https://www.postgresql.org/) (suitable for static linking)
 * [stack@mbj=2.1.3-r0](https://docs.haskellstack.org/en/stable/README/)
 
 ## Stability
