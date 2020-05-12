@@ -1,0 +1,26 @@
+build:
+  haddock: false
+resolver: lts-14.27
+extra-deps:
+- amazonka-1.6.1@sha256:d863557379350ed6bbb91187abeb8c349a654f60b140d138710486f58ae7c476,3536
+- amazonka-core-1.6.1@sha256:9bc59ce403c6eeba3b3eaf3f10e5f0b6a33b6edbbf8f6de0dd6f4c67b86fa698,5135
+- amazonka-s3-1.6.1@sha256:9d07240fca59ad5197fb614ce3051e701e4951e6d4625a2dab4a9c17a1900194,6317
+- stratosphere-0.49.0@sha256:218eda4078bc4d8cdc1035ffe338d131c37e1f9c52562ba98fde1371f08986ed,117606
+- git: https://github.com/mbj/amazonka
+  commit: 33aa6b71309793829b534fb29f6532d71c32b106
+  subdirs:
+  - amazonka-cloudformation
+- git: https://github.com/mbj/devtools-hs
+  commit: 44bfbe3c9f53188c5702f9a10396d509b7cd6a90
+- git: https://github.com/mbj/mprelude
+  commit: 451e3c2bed257c42e45dfb00d66376285cfaa56f
+- git: https://github.com/mbj/source-constraints
+  commit: 75ba67ba7a8853db3c2ca22c5db10dbe883e1dae
+- git: https://github.com/mbj/stack-deploy
+  commit: e0807cf4db7347928a5f760c4cd8420226db1dd3
+- git: https://github.com/mbj/tasty
+  commit: ff484ef812277ad27a9c9449b4597be30c845b13
+  subdirs:
+  - core
+- git: https://github.com/mbj/tasty-mgolden
+  commit: a2e538036e16aa6b002de7bf39392fa0a2d7c370

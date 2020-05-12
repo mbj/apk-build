@@ -1,0 +1,21 @@
+{
+  "Outputs": {
+    "RepositoryBucketName": {
+      "Export": {
+        "Name": "ApkRepositoryBucketName"
+      },
+      "Value": {
+        "Ref": "Repository"
+      }
+    }
+  },
+  "Resources": {
+    "Repository": {
+      "Properties": {
+        "AccessControl": "PublicRead",
+        "BucketName": "mbj-apk"
+      },
+      "Type": "AWS::S3::Bucket"
+    }
+  }
+}
