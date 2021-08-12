@@ -3,7 +3,7 @@
 module APK.Podman
   ( Config(..)
   , HostPaths(..)
-  , PackageName(..)
+  , PackageName
   , build
   , getHostPaths
   , index
@@ -27,14 +27,9 @@ import qualified System.Path           as Path
 import qualified System.Path.Directory as Path
 import qualified System.Process.Typed  as Process
 
-newtype ContainerName = ContainerName Text
-  deriving newtype ToText
-
-newtype ImageName = ImageName Text
-  deriving newtype ToText
-
-newtype PackageName = PackageName Text
-  deriving newtype ToText
+type ContainerName = BoundText "ContainerName"
+type ImageName     = BoundText "ImageName"
+type PackageName   = BoundText "PackageName"
 
 data Config = Config
   { arguments      :: [String]
@@ -176,7 +171,7 @@ runContainer Config{..} HostPaths{..} = do
 
     imageName :: ImageName
     imageName =
-      ImageName $
+      convertUnsafe $
         "apk-build-" <> (decodeUtf8 . AWS.sha256Base16 $ AWS.toHashed dockerfile)
 
 #ifndef __HLINT__
