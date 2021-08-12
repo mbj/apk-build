@@ -11,12 +11,12 @@ RUN apk add                              \
   && ln -s /var/cache/apk /etc/apk/cache
 
 RUN echo $'-----BEGIN PUBLIC KEY-----\n\
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtZRLJDokvEpadk3M1KqW\n\
-hJ3sMVJzmP1XNMKsG/PxnfWaYGpGzPlkAgSKbHmbn+McWL6/B2GwhwqO4YCZ02rV\n\
-P9BBrzlnTak6OFHaxj9nOB0YV0uXMJWW5foNsmmNhPCDzbLDP/F7HmRcuBiosucb\n\
-Xiw1JxuRF99tQeksoMxn4jaqIRLpZr2u2QHGU3SAw9FkL9uHtF3h3GE13sgjWXYO\n\
-w+ST3GtURxI6RdL/2L09ShCxt2NvwBNvevNxoZOaCMgu/7c+DnIw7q4yII083XjZ\n\
-RKgPgxSylguY+X3uuPaV9ZIX8hCuAuFF1fzbTvl/plyeptB9HF6vtXe4CbsZvdYU\n\
-9QIDAQAB\n\
------END PUBLIC KEY-----\n'\
->> /etc/apk/keys/mbj@schirp-dso.com-5e5c5d2b.rsa.pub
+MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAoWXZ75rvmn8I5GoTmxsA\n\
+LGv5eWrNf/lrOeiPAoux3H2nCwO0+Qd/Fd0u453B8yq5pmcuyebYvjSle4vH0C7m\n\
+g1x2PN57sZLawJbO47ywKw7yN5iWhLTq8R8Zbou9m7o0fSuukGPKzleOFn2MxLw3\n\
+0uqcv45Vcsw2msgwfXluycjyCWfoV+dvCeu1pqVLLaG8FP108Pn2yn7IzIvt5abd\n\
+pg+6jh4W8t1P2LZ3D0YI8P3+0+d9tcVQe2TAaNFjALWB6GY0D9vncVI+WjPi2NxE\n\
+ZHUir6fe0rAx7hLAhyo9SPSCeOQhO8oBijoIE3C5d+cZebUNNuhPGZwKRPmeKDOj\n\
+hQIDAQAB\n\
+-----END PUBLIC KEY-----'\
+>> /etc/apk/keys/mbj.rsa.pub
