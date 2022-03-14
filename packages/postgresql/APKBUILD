@@ -2,8 +2,8 @@
 # Contributor: G.J.R. Timmer <gjr.timmer@gmail.com>
 # Contributor: Jakub Jirutka <jakub@jirutka.cz>
 pkgname=postgresql
-pkgver=12.2
-pkgrel=0
+pkgver=13.4
+pkgrel=2
 pkgdesc="A sophisticated object-relational DBMS"
 url="https://www.postgresql.org/"
 arch="all"
@@ -13,29 +13,70 @@ install="$pkgname.pre-install $pkgname.pre-upgrade"
 pkgusers="postgres"
 pkggroups="postgres"
 checkdepends="diffutils"
-depends_dev="openssl-dev"
-makedepends="$depends_dev libedit-dev zlib-dev libxml2-dev util-linux-dev
-	tcl-dev perl-dev python2-dev python3-dev linux-headers"
-subpackages="$pkgname-contrib $pkgname-dev $pkgname-doc libpq $pkgname-libs
-	$pkgname-client $pkgname-pltcl
-	$pkgname-plperl $pkgname-plperl-contrib:plperl_contrib
-	$pkgname-plpython2 $pkgname-plpython2-contrib:plpython2_contrib
-	$pkgname-plpython3 $pkgname-plpython3-contrib:plpython3_contrib"
-source="https://ftp.postgresql.org/pub/source/v$pkgver/$pkgname-$pkgver.tar.bz2
+depends_dev="clang icu-dev llvm openssl-dev"
+options="!check"
+makedepends="$depends_dev
+	icu-dev
+	libxml2-dev
+	linux-headers
+	llvm-dev
+	perl-dev
+	python3-dev
+	readline-dev
+	tcl-dev
+	util-linux-dev
+	zlib-dev
+	"
+subpackages="
+	libpq
+	$pkgname-client
+	$pkgname-contrib
+	$pkgname-dev
+	$pkgname-doc
+	$pkgname-libs
+	$pkgname-openrc
+	$pkgname-plperl
+	$pkgname-plperl-contrib:plperl_contrib
+	$pkgname-plpython3
+	$pkgname-plpython3-contrib:plpython3_contrib
+	$pkgname-pltcl
+	"
+source="https://ftp.postgresql.org/pub/source/v$pkgver/postgresql-$pkgver.tar.bz2
 	initdb.patch
 	perl-rpath.patch
 	conf-unix_socket_directories.patch
 	disable-broken-tests.patch
+	disable-test-collate.icu.utf8.patch
+	czech-snowball-stemmer.patch
+
+	pgcrypto-22e1943f13b66df22ea4f8d15836411ba259263a.patch
+	pgcrypto-318df802355924015d4d8f21859bc0ef7a348970.patch
+	pgcrypto-72bbff4cd6eaf55239ccef79cec61766b5f8f1d2.patch
+
 	$pkgname.initd
 	$pkgname.confd
 	pg-restore.initd
 	pg-restore.confd
 	pltcl_create_tables.sql
 	"
-builddir="$srcdir/$pkgname-$pkgver"
-options="!check !checkroot"
 
 # secfixes:
+#   13.4-r0:
+#     - CVE-2021-3677
+#   13.3-r0:
+#     - CVE-2021-32027
+#     - CVE-2021-32028
+#     - CVE-2021-32029
+#   13.2-r0:
+#     - CVE-2021-3393
+#     - CVE-2021-20229
+#   12.5-r0:
+#     - CVE-2020-25694
+#     - CVE-2020-25695
+#     - CVE-2020-25696
+#   12.4-r0:
+#     - CVE-2020-14349
+#     - CVE-2020-14350
 #   12.2-r0:
 #     - CVE-2020-1720
 #   11.5-r0:
@@ -72,43 +113,21 @@ options="!check !checkroot"
 
 prepare() {
 	default_prepare
-	cd "$builddir"
 
 	local file; for file in $pkgname.initd $pkgname.confd; do
 		sed "s|@VERSION@|${pkgver%.*}|" "$srcdir"/$file > $file
 	done
-
-	cp -al "$builddir" "$builddir"~py3
 }
 
-# NOTE: plpython requires separate configure/build runs to build against
-# python 2 versus python 3. Note that the installed Makefile.global will
-# reflect the python 2 build, which seems appropriate since that's still
-# considered the default plpython version.
 build() {
-	msg "Building plpython3"
-
-	cd "$builddir"~py3
 	export PYTHON=/usr/bin/python3
-
-	_configure
-	make -C src/pl/plpython all
-
-
-	msg "Building all"
-
-	cd "$builddir"
-	export PYTHON=/usr/bin/python2
-
-	_configure && make world
-
-	unset PYTHON
-}
-
-# Note: (...) instead of {...} is NOT a typo!
-_configure() (
 	export CFLAGS="${CFLAGS/-Os/-O2}"
 	export CPPFLAGS="${CPPFLAGS/-Os/-O2}"
+
+	# when disable-spinlocks is no longer required - check postgresql-bdr package
+	case $CARCH in
+		riscv64) local _configure=--disable-spinlocks;;
+	esac
 
 	./configure \
 		--build=$CBUILD \
@@ -117,27 +136,26 @@ _configure() (
 		--mandir=/usr/share/man \
 		--with-system-tzdata=/usr/share/zoneinfo \
 		--without-ldap \
-		--with-libedit-preferred \
 		--with-libxml \
 		--with-openssl \
 		--with-uuid=e2fs \
 		--disable-rpath \
+		--with-llvm \
 		--with-perl \
 		--with-python \
-		--with-tcl
-)
+		--with-icu \
+		--with-tcl \
+		$_configure
+	make world
+}
 
 check() {
-	cd "$builddir"
-
 	_run_tests src/test
 	_run_tests src/pl
 	_run_tests contrib
 }
 
 package() {
-	cd "$builddir"
-
 	make DESTDIR="$pkgdir" install install-docs
 
 	cd "$pkgdir"
@@ -156,7 +174,7 @@ package() {
 dev() {
 	default_dev
 
-	_submv usr/bin/pg_config \
+	amove usr/bin/pg_config \
 		usr/bin/ecpg \
 		usr/lib/postgresql/pgxs
 }
@@ -165,7 +183,7 @@ libpq() {
 	pkgdesc="PostgreSQL libraries"
 	depends=""
 
-	_submv usr/lib/libpq.so.*
+	amove usr/lib/libpq.so.*
 }
 
 libs() {
@@ -220,7 +238,7 @@ pltcl() {
 	pkgdesc="PL/Tcl procedural language for PostgreSQL"
 	depends="pgtcl"
 
-	_submv usr/lib/postgresql/pltcl.so \
+	amove usr/lib/postgresql/pltcl.so \
 		usr/share/postgresql/extension/pltcl*
 
 	install -m 644 "$srcdir"/pltcl_create_tables.sql \
@@ -231,7 +249,7 @@ plperl() {
 	pkgdesc="PL/Perl procedural language for PostgreSQL"
 	depends=""
 
-	_submv usr/lib/postgresql/plperl.so \
+	amove usr/lib/postgresql/plperl.so \
 		usr/share/postgresql/extension/plperl*
 }
 
@@ -242,42 +260,23 @@ plperl_contrib() {
 	make -C contrib/hstore_plperl DESTDIR="$subpkgdir" install
 }
 
-plpython2() {
-	pkgdesc="PL/Python2 procedural language for PostgreSQL"
-	depends="python2"
-
-	_submv usr/lib/postgresql/plpython2.so \
-		usr/share/postgresql/extension/plpython*
-}
-
-plpython2_contrib() {
-	_plcontrib plpython2 "PL/Python 2"
-
-	cd "$builddir"
-	make -C contrib/hstore_plpython DESTDIR="$subpkgdir" install
-	make -C contrib/ltree_plpython DESTDIR="$subpkgdir" install
-
-	rm "$subpkgdir"/usr/share/postgresql/extension/*plpython3*
-}
-
 plpython3() {
 	pkgdesc="PL/Python3 procedural language for PostgreSQL"
 	depends="python3"
 
-	cd "$builddir"~py3
-	make -C src/pl/plpython DESTDIR="$subpkgdir" install
-	rm -R "$subpkgdir"/usr/include
+	amove usr/lib/postgresql/plpython3.so \
+		usr/share/postgresql/extension/plpython*
 }
 
 plpython3_contrib() {
 	_plcontrib plpython3 "PL/Python 3"
 
-	cd "$builddir"~py3
+	cd "$builddir"
 	make -C contrib/hstore_plpython DESTDIR="$subpkgdir" install
 	make -C contrib/ltree_plpython DESTDIR="$subpkgdir" install
 
 	cd "$subpkgdir"/usr/share/postgresql/extension/
-	rm *plpython2* *plpythonu*
+	rm ./*plpython2* ./*plpythonu*
 }
 
 _plcontrib() {
@@ -292,9 +291,9 @@ _run_tests() {
 
 	msg "Running test suite at $path..."
 	# Note: some tests fail when running in parallel.
-	make -k -j 1 -C "$path" $@ check MAX_CONNECTIONS=5 || {
+	make -k -j 1 -C "$path" "$@" check MAX_CONNECTIONS=5 || {
 		printf "\n%s\n\n" "Trying to find all regression.diffs files in build directory..." >&2
-		find "$path" -name regression.diffs | while read file; do
+		find "$path" -name regression.diffs | while read -r file; do
 			echo "=== test failure: $file ===" >&2
 			cat "$file" >&2
 		done
@@ -302,20 +301,20 @@ _run_tests() {
 	}
 }
 
-_submv() {
-	local path; for path in "$@"; do
-		mkdir -p "$subpkgdir/${path%/*}"
-		mv "$pkgdir"/$path "$subpkgdir"/${path%/*}/
-	done
-}
-
-sha512sums="0e0ce8e21856e8f43e58b840c10c4e3ffae6d5207e0d778e9176e36f8e20e34633cbb06f0030a7c963c3491bb7e941456d91b55444c561cfc6f283fba76f33ee  postgresql-12.2.tar.bz2
+sha512sums="
+f1faf676ffdcee3e7f2c3b78f4badf44770d6be58090036d119d8fb0688e2b9f9159dd44fe850c179b8e23f256942c05edb8fcc385f0e852d16b37eace785b5a  postgresql-13.4.tar.bz2
 1f8e7dc58f5b0a12427cf2fd904ffa898a34f23f3332c8382b94e0d991c007289e7913a69e04498f3d93fc5701855796c207b4b1cc4a0b366f586050124d7fcc  initdb.patch
-5f9d8bb4957194069d01af8ab3abc6d4d83a7e7f8bd7ebe1caae5361d621a3e58f91b14b952958138a794e0a80bc154fbb7e3e78d211e2a95b9b7901335de854  perl-rpath.patch
+27e00b58fe5c3899c66fc0dde51846c14701bcfedd132b106d676783ba603e8cbdc6e620f29b52dc892bdaa9302052788cf5e575a1659f61c017a12e0d2ee4d0  perl-rpath.patch
 8439a6fdfdea0a4867daeb8bc23d6c825f30c00d91d4c39f48653f5ee77341f23282ce03a77aad94b5369700f11d2cb28d5aee360e59138352a9ab331a9f9d0f  conf-unix_socket_directories.patch
 c4179fcd8b71791cdc41ea7b622cf82e9bd42ac1de66999234b98a83c0c508c79c492a9301274fe859c06a3f1a8b17b53ab97541ab76801a985f8f0b9b8716e7  disable-broken-tests.patch
-224e80f9e62843fd248e625abdd0d9fe477729ff3f9a64fc5c86dd37bb7176d3504107fbed7ce578e3a1db7f60b8cf2abf5fe4862c81f76b6d026e29ca495cfc  postgresql.initd
-a6d9cba5c7270484b3a22083b2b37742faefb01b6643040050c92235840c601b2e206ebda32804937b729c6cf42c79a558b921900e52fc420df2a03b5f29e1f7  postgresql.confd
+14703da0a9441ae1bbad9fe124c4c267526975a22080c5f3e8c3a323164b743158ee10fcff31f18131a64e765c89125410652b317da46e92e962f251079f5a9a  disable-test-collate.icu.utf8.patch
+2bd10c4911a50432a00d47bf423c2bb120bacd01a04b41430aa427ae15eafeb3f61e386893211fd147bc7972e4e7f9075ec9e0cd18d50caac14ab0eddb707ef7  czech-snowball-stemmer.patch
+9054d33ad410e887e5d5fa04827a92155977838e0dbe5ec966a7b41e22a8a9b96595ab38938c5401263b892c7520998cc859e57e953a53f2760b2c77cd6e506e  pgcrypto-22e1943f13b66df22ea4f8d15836411ba259263a.patch
+5bcc2f81db5feb51ae8f9aefc028bc561a210dc209941f3042583b619a9ed074ff4be8eab85b2830374c347930e6ee32df25e4549b1891499c253774d98468b3  pgcrypto-318df802355924015d4d8f21859bc0ef7a348970.patch
+b2ba85f8ca0fc6662b2520517511d4ee7eba5dba3816a13019af802f266caa6928c45ef3693ceaaa6d68881f2f0766f9d03842125cecb8d88a5f58a6d8bb0e44  pgcrypto-72bbff4cd6eaf55239ccef79cec61766b5f8f1d2.patch
+2c72eab48a9f13b09a7c6859d6e5a6876e26e3d2dafb2fca4989d65efd8f34a7d20410ca9d5a653291e31e67e9bda3048312c67eb675e04ab972c26c97bca004  postgresql.initd
+50034cd4ed040dfcae8b015ddfba9a9210787d170125451e75ceaadc9f8364a1c93ba6ddeb205a6deb21f96c7634066919d26686c3af514bf0693a97d6b0dbd0  postgresql.confd
 f5a1cba051e7d846c2d16703514601cb25729ed96b677c9bd0c199d64552120a8b14b238af01917fdb87106681e12dee6fff7447558155ba273e4f96be5e2892  pg-restore.initd
 c14a5684e914abb3b0ee71bbf15eed71a9264deacaa404a6e3af6bfc330d93e7598624d0ed11a94263106cc660f7f54c8ff57e759033cf606a795f69ff6c1c7c  pg-restore.confd
-5c9bfd9e295dcf678298bf0aa974347a7c311d6e7c2aa76a6920fcb751d01fd1ab77abbec11f3c672f927ad9deaa88e04e370c0b5cd1b60087554c474b748731  pltcl_create_tables.sql"
+5c9bfd9e295dcf678298bf0aa974347a7c311d6e7c2aa76a6920fcb751d01fd1ab77abbec11f3c672f927ad9deaa88e04e370c0b5cd1b60087554c474b748731  pltcl_create_tables.sql
+"

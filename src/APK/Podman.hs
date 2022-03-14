@@ -139,6 +139,7 @@ runContainer Config{..} HostPaths{..} = do
     , "--stop-timeout", "0"
     , "--tty"
     , "--workdir", Path.toString workPath
+    , "--security-opt", "seccomp=unconfined"
     , "--"
     , convertText imageName
     , command
