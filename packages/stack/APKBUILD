@@ -5,7 +5,7 @@ license=BSD-3-Clause
 pkgdesc='The Haskell Tool Stack'
 pkgname=stack
 pkgrel=0
-pkgver=2.7.3
+pkgver=2.7.5
 dirname="stack-$pkgver-linux-x86_64-static"
 filename="$dirname.tar.gz"
 source="https://github.com/commercialhaskell/stack/releases/download/v$pkgver/$filename"
@@ -21,4 +21,4 @@ check() {
   "$srcdir/$dirname/stack" --version
 }
 
-sha256sums="c5bce24defa2b2b86f1bbb14bed4f1ee83bec14c6ed9fcc81174d5473fbf3450  $filename"
+sha256sums="2a02fefefcc1758033d0aea566a521a290e3c68739ce9894bd6492a346af79c5  $filename"
