@@ -1,4 +1,4 @@
-FROM alpine:3.14
+FROM alpine:3.16
 
 ENV HOME=/opt/build
 
@@ -7,6 +7,27 @@ RUN apk add                              \
   --                                     \
   alpine-sdk                             \
   apk-tools                              \
+  postgresql-common                      \
+  tzdata                                 \
+  libpq-dev                              \
+  libecpg-dev \
+  clang \
+  icu-dev \
+  llvm13 \
+  openssl1.1-compat-dev \
+  libxml2-dev  \
+  linux-headers \
+  llvm13-dev \
+  openldap-dev \
+  perl-dev \
+  python3-dev \
+  readline-dev \
+  tcl-dev \
+  util-linux-dev \
+  zlib-dev \
+  bison \
+  flex  \
+  diffutils \
   && addgroup root abuild                \
   && ln -s /var/cache/apk /etc/apk/cache
 
